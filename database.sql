@@ -41,10 +41,6 @@ CREATE TABLE `erabiltzaileak` (
 -- Volcado de datos para la tabla `erabiltzaileak`
 --
 
-INSERT INTO `erabiltzaileak` (`erabiltzaileIzena`, `pasahitza`, `izenAbizenak`, `nan`, `telefonoa`, `jaioData`, `email`) VALUES
-('Gonzalo', 'Gonzalo--', 'Gonzalo Redondo', '72592831', 123456789, '2022-09-05', 'gonzalo@gmail.com'),
-('Unai--', 'unai1234', 'Unai Garcia', '20978311', 987654321, '2019-01-01', 'unai@gmail.com'),
-('Xabi01', 'Xabier03', 'Xabier Aramburu', '79366604', 987657643, '2022-10-11', 'xabieraramburu3@gmail.com');
 
 -- --------------------------------------------------------
 
