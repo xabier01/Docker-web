@@ -4,7 +4,7 @@ Xabier Aramburu, Gonzalo Redondo eta Unai Garcia
 
 Gure proiektua daukan GitHub biltegia klonatu (edo jaitsi): 
 
-$ git clone https://github.com/xabier01/Docker-web.git
+> $ git clone https://github.com/xabier01/Docker-web.git
 
 Aurretik Docker eta Docker-compose instalatuta izan behar da:
 
