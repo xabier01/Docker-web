@@ -2,7 +2,9 @@ Xabier Aramburu, Gonzalo Redondo eta Unai Garcia
 
 # Docker erabiliz, Web Sistema nola abiaratu
 
-Gure proiektua daukan GitHub biltegia klonatu (edo jaitsi): $ git clone 
+Gure proiektua daukan GitHub biltegia klonatu (edo jaitsi): 
+
+$ git clone https://github.com/xabier01/Docker-web.git
 
 Aurretik Docker eta Docker-compose instalatuta izan behar da:
 
