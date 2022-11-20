@@ -1,4 +1,11 @@
 <?php
+//header_remove(“Server”);
+header('X-Frame-Options: SAMEORIGIN');
+header('X-XSS-Protection: 0');
+header('X-Content-Type-Options: nosniff');
+header_remove("X-Powered-By");
+
+ini_set("session.cookie_httponly", True);
 	//Saioa hasi
 	session_start();
 	//DB-AREKIN KONEXIOA LORTU
@@ -8,27 +15,45 @@
 	{
 		die("Konexio zapustu da");
 	}
+
+	$konexioa-> set_charset('utf8');
+ 	
 	//SARTU BOTOIA SAKATU BADA, JOKOA SARTU DB-AN
 	if(isset($_POST["sartuJokBotoi"])) 
 	{
     
-		$titulua= $_POST['titulua'];
-		$generoa= $_POST['generoa'];
-		$balorazioa= $_POST['balorazioa'];
-		$jokoAdina= $_POST['adina'];
-		$laburpena= $_POST['laburpena'];
-		$pertsonaiPrin= $_POST['printzipalak'];
-		$gehitu= "INSERT INTO jokoak(titulua, generoa, balorazioa, jokoAdina, laburpena, pertsonaiPrin) VALUES ('$titulua', '$generoa' , '$balorazioa', '$jokoAdina' , '$laburpena', '$pertsonaiPrin')";
-		$emaitza= mysqli_query($konexioa, $gehitu);
-		//JOKOA SARTU BADA
-		if ($emaitza)
+		$titulua = $konexioa->real_escape_string (htmlspecialchars($_POST['titulua']));
+		$generoa = $konexioa->real_escape_string (htmlspecialchars($_POST['generoa']));
+		$balorazioa = $konexioa->real_escape_string (htmlspecialchars($_POST['balorazioa']));
+		$jokoAdina = $konexioa->real_escape_string (htmlspecialchars($_POST['adina']));
+		$laburpena = $konexioa->real_escape_string (htmlspecialchars($_POST['laburpena']));
+		$pertsonaiPrin = $konexioa->real_escape_string (htmlspecialchars($_POST['printzipalak']));
+		$csrf = $konexioa->real_escape_string($_POST['csrf']);
+		if(!empty($titulua) && !empty($generoa) && !empty($balorazioa) && !empty($jokoAdina) && !empty($laburpena) && !empty($pertsonaiPrin) && !empty($csrf)){
+            if($_SESSION['csrf'] === $csrf){
+                echo "csrf ondo";
+                unset($_SESSION['csrf']);
+            }else{
+                echo "csrf txarto";
+            }
+        }
+
+		if ($gehitu=$konexioa->prepare("INSERT INTO jokoak(titulua, generoa, balorazioa, jokoAdina, laburpena, pertsonaiPrin) VALUES (? , ? , ? , ? , ? , ? )"))
 		{
-			echo "Jokoa sartu da";
-		}			
-		else
-		{
-			//echo "Jokoa ezin da sartu";
-			die ("Jokoa gehitzea ez da posible izan" .  $konexioa-> error);
+			$gehitu->bind_param('ssssss', $titulua, $generoa, $balorazioa, $jokoAdina, $laburpena, $pertsonaiPrin);
+            $emaitza=$gehitu->execute();
+
+			//JOKOA SARTU BADA
+			if ($emaitza)
+			{
+				echo "Jokoa sartu da";
+			}			
+			else
+			{
+				//echo "Jokoa ezin da sartu";
+				die ("Jokoa gehitzea ez da posible izan" .  $konexioa-> error);
+			}
+			$gehitu->close();
 		}
 		
 	}
@@ -36,24 +61,37 @@
 	//EDITATU BOTOIA SAKATU BADA, JOKOA EDITATU DB-AN
 	if(isset($_POST["editatuJokBotoi"])) 
 	{
-		$aldatzekoTitulua=$_POST['tituluZahar'];
-		$titulua= $_POST['titulua'];
-		$generoa= $_POST['generoa'];
-		$balorazioa= $_POST['balorazioa'];
-		$jokoAdina= $_POST['adina'];
-		$laburpena= $_POST['laburpena'];
-		$pertsonaiPrin= $_POST['printzipalak'];
-		$editatu= "UPDATE jokoak SET titulua='$titulua', generoa='$generoa', balorazioa='$balorazioa', jokoAdina='$jokoAdina', laburpena ='$laburpena' , pertsonaiPrin='$pertsonaiPrin' WHERE titulua='$aldatzekoTitulua' ";
-		$emaitza= mysqli_query($konexioa, $editatu);
-		//JOKOA EDITATU BADA
-		if ($emaitza)
+		$aldatzekoTitulua=$konexioa->real_escape_string(htmlspecialchars($_POST['tituluZahar']));
+		$titulua=$konexioa->real_escape_string (htmlspecialchars($_POST['titulua']));
+		$generoa=$konexioa->real_escape_string (htmlspecialchars($_POST['generoa']));
+		$balorazioa=$konexioa->real_escape_string (htmlspecialchars($_POST['balorazioa']));
+		$jokoAdina=$konexioa->real_escape_string (htmlspecialchars($_POST['adina']));
+		$laburpena=$konexioa->real_escape_string (htmlspecialchars($_POST['laburpena']));
+		$pertsonaiPrin=$konexioa->real_escape_string (htmlspecialchars($_POST['printzipalak']));
+		$csrf = $konexioa->real_escape_string($_POST['csrf']);
+		if(!empty($aldatzekoTitulua) && !empty($titulua) && !empty($generoa) && !empty($balorazioa) && !empty($jokoAdina) && !empty($laburpena) && !empty($pertsonaiPrin) && !empty($csrf)){
+            if($_SESSION['csrf'] === $csrf){
+                echo "csrf ondo";
+                unset($_SESSION['csrf']);
+            }else{
+                echo "csrf txarto";
+            }
+        }
+		if($editatu= $konexioa->prepare ("UPDATE jokoak SET titulua= ? , generoa= ? , balorazioa= ? , jokoAdina= ? , laburpena = ? , pertsonaiPrin= ? WHERE titulua= ? "))
 		{
-			echo "Jokoa editatu da";
-		}			
-		else
-		{
-			//echo "Jokoa ezin da editatu";
-			die ("Jokoa editatzea ez da posible izan" .  $konexioa-> error);
+			$editatu->bind_param('sssssss', $titulua, $generoa, $balorazioa, $jokoAdina, $laburpena, $pertsonaiPrin, $aldatzekoTitulua);
+			$emaitza=$editatu->execute();
+			//JOKOA EDITATU BADA
+			if ($emaitza)
+			{
+				echo "Jokoa editatu da";
+			}			
+			else
+			{
+				//echo "Jokoa ezin da editatu";
+				die ("Jokoa editatzea ez da posible izan" .  $konexioa-> error);
+			}
+			$editatu->close();
 		}
 		
 	}
@@ -62,28 +100,43 @@
 	//EZABATU BOTOIA SAKATU BADA, JOKOA EZABATU DB-AN
 	if(isset($_POST["ezabatuJokBotoi"])) 
 	{
-		$aldatzekoTitulua=$_POST['tituluZahar'];
-		$titulua= $_POST['titulua'];
-		$generoa= $_POST['generoa'];
-		$balorazioa= $_POST['balorazioa'];
-		$jokoAdina= $_POST['adina'];
-		$laburpena= $_POST['laburpena'];
-		$pertsonaiPrin= $_POST['printzipalak'];
-		$ezabatu= "DELETE FROM jokoak WHERE titulua='$aldatzekoTitulua' ";
-		$emaitza= mysqli_query($konexioa, $ezabatu);
-		//JOKOA EZABATU BADA
-		if ($emaitza)
+		$aldatzekoTitulua=$konexioa->real_escape_string(htmlspecialchars($_POST['tituluZahar']));
+		$titulua= $konexioa->real_escape_string(htmlspecialchars($_POST['titulua']));
+		$generoa= $konexioa->real_escape_string(htmlspecialchars($_POST['generoa']));
+		$balorazioa= $konexioa->real_escape_string(htmlspecialchars($_POST['balorazioa']));
+		$jokoAdina= $konexioa->real_escape_string(htmlspecialchars($_POST['adina']));
+		$laburpena= $konexioa->real_escape_string(htmlspecialchars($_POST['laburpena']));
+		$pertsonaiPrin= $konexioa->real_escape_string(htmlspecialchars($_POST['printzipalak']));
+		$csrf = $konexioa->real_escape_string($_POST['csrf']);
+		if(!empty($aldatzekoTitulua) && !empty($csrf)){
+            if($_SESSION['csrf'] === $csrf){
+                echo "csrf ondo";
+                unset($_SESSION['csrf']);
+            }else{
+                echo "csrf txarto";
+            }
+        }
+		if($ezabatu= $konexioa->prepare("DELETE FROM jokoak WHERE titulua= ? "))
 		{
-			echo "Jokoa ezabatu da";
-		}			
-		else
-		{
-			//echo "Jokoa ezin da ezabatu";
-			die ("Jokoa ezabatzea ez da posible izan" .  $konexioa-> error);
+			$ezabatu->bind_param('s', $aldatzekoTitulua);
+			$emaitza=$ezabatu->execute();
+		
+			//JOKOA EZABATU BADA
+			if ($emaitza)
+			{
+				echo "Jokoa ezabatu da";
+			}			
+			else
+			{
+				//echo "Jokoa ezin da ezabatu";
+				die ("Jokoa ezabatzea ez da posible izan" .  $konexioa-> error);
+			}
+			$ezabatu->close();
 		}
 		
 	}
-
+	$token = md5(uniqid(rand(),true));
+    $_SESSION['csrf'] = $token; //token del servidor (cada vez que se recarga la pagina se crea nueva)
 
 ?>
 <!DOCTYPE html>
@@ -91,7 +144,7 @@
     <head>
 		<!--METADUATUAK-->
         <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
-		<meta content="utf-8" http-equiv="encoding">
+        <meta http-equiv="Content-Security-Policy" charset="utf-8">
         <!--WEB IZENA-->
         <title>Web</title>
         <!--EREMU ERREFERENTZIAK-->
@@ -127,6 +180,7 @@
 			Jokoaren Adina: <input type="text" class="zelai" id="idAdina" name="adina" onblur="egiaztatuJoko(this)"/><br>
 			Laburpena: <input type="text" class="zelai" id="idLaburpena" name="laburpena"  onblur="egiaztatuJoko(this)"/><br>
 			Pertsonai printzipalak: <input type="text" class="zelai" id="idPrintzipalak" name="printzipalak" onblur="egiaztatuJoko(this)"/><br>
+			<input type="hidden" name="csrf" value="<?php echo $token; ?>">
 			<input type="submit" class="botoiSartu" id="sartuJokBotoi" name="sartuJokBotoi" value="Sartu jokoa" disabled/>
 			<input type="submit" class="botoiEditatu" id="editatuJokBotoi" name="editatuJokBotoi" value="Editatu jokoa" disabled/>
 			<input type="submit" class="botoiEzabatu" id="ezabatuJokBotoi" name="ezabatuJokBotoi" value="Ezabatu jokoa" disabled/>

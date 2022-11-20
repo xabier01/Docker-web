@@ -179,7 +179,7 @@ function egiaztatuSaioHasiera(ikusteko)
                 //Erabiltzailea da
                 erabiltzaileSaioa = true;
                 ikusteko.style.borderColor = "green";
-                begiraBotoi();
+                ikusiBotoi();
                 return;
             }
         } 
@@ -198,7 +198,7 @@ function egiaztatuSaioHasiera(ikusteko)
     }
     ikusteko.style.borderColor = "red";
     erregistroBotoia.disabled = true;
-    if(erabiltzaileErregistroa && pasahitzErregistroa && izenAbizenErregistroa && nanErregistroa && telefonoErregistroa && 
+    /*if(erabiltzaileErregistroa && pasahitzErregistroa && izenAbizenErregistroa && nanErregistroa && telefonoErregistroa && 
         dataErregistroa && emailErregistroa)
     {
         erregistroBotoia.disabled = false;
@@ -206,7 +206,7 @@ function egiaztatuSaioHasiera(ikusteko)
     else
     {
         
-    }
+    }*/
 }
 
 //---------------------------------------------------------------------------------------------------

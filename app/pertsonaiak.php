@@ -1,5 +1,11 @@
 <?php
-
+    //header_remove(“Server”);
+    header('X-Frame-Options: SAMEORIGIN');
+    header('X-XSS-Protection: 0');
+    header('X-Content-Type-Options: nosniff');
+    header_remove("X-Powered-By");
+    
+    ini_set("session.cookie_httponly", True);
 //Saioa hasi
 session_start();
 ?>
@@ -9,7 +15,8 @@ session_start();
 <html lang="en" dir="ltr">
     <head>
         <!--METADUATUAK-->
-        <meta charset="utf-8">
+        <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+        <meta http-equiv="Content-Security-Policy" charset="utf-8">
         <!--WEB IZENA-->
         <title>Web</title>
         <!--EREMU ERREFERENTZIAK-->
@@ -38,7 +45,8 @@ session_start();
 			Editatzeko/Ezabatzeko nahian, sartu pertsonaiaren izena: <input type="text" class="zelai" id="idTitZahar" name="tituluZahar" onblur="egiaztatuPertsonai(this)"/><br>
             Pertsonaiaren izena: <input type="text" class="zelai" id="idPertsonai" name="pertsonaiIzena" onblur="egiaztatuPertsonai(this)"/><br>
 			Agertzen den jokua/k: <input type="text" class="zelai" id="idAgerpenJoku" name="agerpenJoku" onblur="egiaztatuPertsonai(this)"/><br>
-			<input type="submit" class="botoiSartu" id="sartuPertsBotoi" name="sartuPertsBotoi" value="Sartu pertsonaia" disabled>
+			<input type="hidden" name="csrf" value="<?php echo $token; ?>">
+            <input type="submit" class="botoiSartu" id="sartuPertsBotoi" name="sartuPertsBotoi" value="Sartu pertsonaia" disabled>
             <input type="submit" class="botoiEditatu" id="editatuPertsBotoi" name="editatuPertsBotoi" value="Editatu pertsonaia" disabled>
 			<input type="submit" class="botoiEzabatu" id="ezabatuPertsBotoi" name="ezabatuPertsBotoi" value="Ezabatu pertsonaia" disabled>
 		</form>
@@ -58,50 +66,79 @@ session_start();
     </tr>";
 
 
-        //DB-arkin konexioa lortu
-        $konexioa = mysqli_connect("db", "admin", "test", "database");
-        //Errorea emon badu
-        if ($konexioa -> connect_error) 
-        {
-            die("Konexio zapustu da");
+    //DB-arkin konexioa lortu
+    $konexioa = mysqli_connect("db", "admin", "test", "database");
+    //Errorea emon badu
+    if ($konexioa -> connect_error) 
+    {
+        die("Konexio zapustu da");
+    }
+
+    $konexioa-> set_charset('utf8');
+
+    if(isset($_POST["sartuPertsBotoi"])) {
+        $pertsonaiIzena = $konexioa->real_escape_string(htmlspecialchars($_POST['pertsonaiIzena']));
+        $agerpenJokuIzen = $konexioa->real_escape_string(htmlspecialchars($_POST['agerpenJoku']));
+        $csrf = $konexioa->real_escape_string($_POST['csrf']);
+        if(!empty($pertsonaiIzena) && !empty($agerpenJokuIzen) && !empty($csrf)){
+            if($_SESSION['csrf'] === $csrf){
+                echo "csrf ondo";
+                unset($_SESSION['csrf']);
+            }else{
+                echo "csrf txarto";
+            }
         }
-
-        if(isset($_POST["sartuPertsBotoi"])) {
-            $pertsonaiIzena= $_POST['pertsonaiIzena'];
-            $agerpenJokuIzen= $_POST['agerpenJoku'];
-
-
-            $gehitu= "INSERT INTO pertsonaiak(pertsonaiIzena, agerpenJokuIzen) VALUES ('$pertsonaiIzena' , '$agerpenJokuIzen' )";
-            $emaitza= mysqli_query($konexioa, $gehitu);
-            if ($emaitza){
+        if ($gehitu = $konexioa->prepare("INSERT INTO pertsonaiak(pertsonaiIzena, agerpenJokuIzen) VALUES ( ? , ? )" )){
+            
+            $gehitu->bind_param('ss',$pertsonaiIzena, $agerpenJokuIzen);
+            $emaitza=$gehitu->execute();
+    
+            if ($emaitza){ 
                 echo "todo bien";
             }
             
             else{
+                
                 die ("Pertsonaia gehitzea ez da posible izan" .  $konexioa-> error);
             }
-        
+            $gehitu->close();
         }
+    
+    }
 
 
         //EDITATU BOTOIA SAKATU BADA, JOKOA EDITATU DB-AN
 	if(isset($_POST["editatuPertsBotoi"])) 
 	{
-		$aldatzekoTitulua=$_POST['tituluZahar'];
-        $pertsonaiIzena= $_POST['pertsonaiIzena'];
-        $agerpenJokuIzen= $_POST['agerpenJoku'];
-		$editatu= "UPDATE pertsonaiak SET pertsonaiIzena='$pertsonaiIzena', agerpenJokuIzen='$agerpenJokuIzen' WHERE pertsonaiIzena='$aldatzekoTitulua' ";
-		$emaitza= mysqli_query($konexioa, $editatu);
-		//PERTSONAIA EDITATU BADA
-		if ($emaitza)
-		{
-			echo "Pertsonaia editatu da";
-		}			
-		else
-		{
-			//echo "PERTSONAIA ezin da editatu";
-			die ("Pertsonaia editatzea ez da posible izan" .  $konexioa-> error);
-		}
+		$aldatzekoTitulua=$konexioa->real_escape_string(htmlspecialchars($_POST['tituluZahar']));
+        $pertsonaiIzena= $konexioa->real_escape_string(htmlspecialchars($_POST['pertsonaiIzena']));
+        $agerpenJokuIzen=$konexioa->real_escape_string(htmlspecialchars($_POST['agerpenJoku']));
+		$csrf = $konexioa->real_escape_string($_POST['csrf']);
+        if(!empty($aldatzekoTitulua) && !empty($pertsonaiIzena) && !empty($agerpenJokuIzen) && !empty($csrf)){
+            if($_SESSION['csrf'] === $csrf){
+                echo "csrf ondo";
+                unset($_SESSION['csrf']);
+            }else{
+                echo "csrf txarto";
+            }
+        }
+        if($editatu= $konexioa->prepare("UPDATE pertsonaiak SET pertsonaiIzena= ?, agerpenJokuIzen= ? WHERE pertsonaiIzena= ? ")){
+            
+            $editatu->bind_param('sss', $pertsonaiIzena, $agerpenJokuIzen, $aldatzekoTitulua);
+            $emaitza = $editatu->execute();
+
+            //PERTSONAIA EDITATU BADA
+            if ($emaitza)
+            {
+                echo "Pertsonaia editatu da";
+            }			
+            else
+            {
+                
+                die ("Pertsonaia editatzea ez da posible izan" .  $konexioa-> error);
+            }
+           $editatu->close(); 
+        }
 		
 	}
 
@@ -109,21 +146,35 @@ session_start();
 	//EZABATU BOTOIA SAKATU BADA, JOKOA EZABATU DB-AN
 	if(isset($_POST["ezabatuPertsBotoi"])) 
 	{
-		$aldatzekoTitulua=$_POST['tituluZahar'];
-        $pertsonaiIzena= $_POST['pertsonaiIzena'];
-        $agerpenJokuIzen= $_POST['agerpenJoku'];
-		$ezabatu= "DELETE FROM pertsonaiak WHERE pertsonaiIzena='$aldatzekoTitulua' ";
-		$emaitza= mysqli_query($konexioa, $ezabatu);
-		//Pertsonaia EZABATU BADA
-		if ($emaitza)
-		{
-			echo "Pertsonaia ezabatu da";
-		}			
-		else
-		{
-			//echo "Pertsonaia ezin da ezabatu";
-			die ("Pertsonaia ezabatzea ez da posible izan" .  $konexioa-> error);
-		}
+		$aldatzekoTitulua=htmlspecialchars($_POST['tituluZahar']);
+        $pertsonaiIzena= htmlspecialchars($_POST['pertsonaiIzena']);
+        $agerpenJokuIzen= htmlspecialchars($_POST['agerpenJoku']);
+		$csrf = $konexioa->real_escape_string($_POST['csrf']);
+        if(!empty($aldatzekoTitulua) && !empty($csrf)){
+            if($_SESSION['csrf'] === $csrf){
+                echo "csrf ondo";
+                unset($_SESSION['csrf']);
+            }else{
+                echo "csrf txarto";
+            }
+        }
+        if($ezabatu= $konexioa->prepare("DELETE FROM pertsonaiak WHERE pertsonaiIzena= ? ")){
+            
+            $ezabatu->bind_param('s', $aldatzekoTitulua);
+            $emaitza = $ezabatu->execute();
+            
+            //Pertsonaia EZABATU BADA
+            if ($emaitza)
+            {
+                echo "Pertsonaia ezabatu da";
+            
+            }			
+            else
+            {
+                die ("Pertsonaia ezabatzea ez da posible izan" .  $konexioa-> error);
+            }
+           $ezabatu->close();
+        }
 		
 	}
 
@@ -159,7 +210,8 @@ else{
     echo '<script type="text/javascript"> document.getElementById("saioPerfila").style.display="none"; </script>';
     echo '<script type="text/javascript"> document.getElementById("saioaItxi").style.display="none"; </script>';
 }
-
+$token = md5(uniqid(rand(),true));
+$_SESSION['csrf'] = $token; //token del servidor (cada vez que se recarga la pagina se crea nueva)
 ?>
     
     
