@@ -1,4 +1,11 @@
 <?php
+    //header_remove(“Server”);
+    header('X-Frame-Options: SAMEORIGIN');
+    header('X-XSS-Protection: 0');
+    header('X-Content-Type-Options: nosniff');
+    header_remove("X-Powered-By");
+    
+    ini_set("session.cookie_httponly", True);
     //Saioa hasi
     session_start();
 ?>
@@ -7,7 +14,7 @@
     <head>
         <!--METADUATUAK-->
         <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
-        <meta content="utf-8" http-equiv="encoding">
+        <meta http-equiv="Content-Security-Policy" charset="utf-8">
         <!--WEB IZENA-->
         <title>Web</title>
         <!--EREMU ERREFERENTZIAK-->
