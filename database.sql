@@ -86,6 +86,43 @@ INSERT INTO `pertsonaiak` (`pertsonaiIzena`, `agerpenJokuIzen`) VALUES
 ('mario ', 'mario bros, mario party'),
 ('sonic', 'sonic 1, sonic 2');
 
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `logOnak`
+--
+
+CREATE TABLE `logOnak` (
+  `erabIzena` varchar(200) NOT NULL,
+  `dataOrdua` datetime 
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Volcado de datos para la tabla `logOnak`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `logTxarrak`
+--
+
+CREATE TABLE `logTxarrak` (
+  `erabIzena` varchar(100) NOT NULL,
+  `pasahitza` varchar(100) ,
+  `dataOrdua` datetime ,
+  `hutsSaioak` int(3) 
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Volcado de datos para la tabla `logTxarrak`
+--
+
+-- --------------------------------------------------------
+
+
+
 --
 -- Índices para tablas volcadas
 --
@@ -107,6 +144,18 @@ ALTER TABLE `jokoak`
 --
 ALTER TABLE `pertsonaiak`
   ADD PRIMARY KEY (`pertsonaiIzena`);
+
+
+-- Indices de la tabla `logOnak`
+--
+
+  
+-- Indices de la tabla `logTxarrak`
+--
+ALTER TABLE `logTxarrak`
+  ADD PRIMARY KEY (`erabIzena`);
+
+
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
