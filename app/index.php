@@ -1,5 +1,13 @@
 <?php
+//header_remove(“Server”);
+header('X-Frame-Options: SAMEORIGIN');
+header('X-XSS-Protection: 0');
+header('X-Content-Type-Options: nosniff');
+
+header_remove("X-Powered-By");
+
 //Saioa hasi
+ini_set("session.cookie_httponly", True);
 session_start();
 //Konektatu datu basea
 $konexioa = mysqli_connect("db", "admin", "test", "database");
@@ -14,7 +22,7 @@ if ($konexioa -> connect_error) {
 <html lang="en" dir="ltr">
     <head>
         <!--METADUATUAK-->
-        <meta charset="utf-8">
+        <meta http-equiv="Content-Security-Policy" charset="utf-8">
         <!--WEB IZENA-->
         <title>Web</title>
         <!--EREMU ERREFERENTZIAK-->
